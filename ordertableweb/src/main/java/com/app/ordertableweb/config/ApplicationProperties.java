@@ -7,7 +7,9 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
+@Component("applicationProperties") // The name given here is used in the EL above
 @Configuration
 @PropertySource("classpath:application.properties")
 public class ApplicationProperties {
@@ -119,5 +121,19 @@ public class ApplicationProperties {
     public String getLocalDateTimeConvertDateformatPattern() {
         logger.log(Level.INFO, "Loading the localDateTimeConvertDateformatPattern: " +  localDateTimeConvertDateformatPattern);
         return localDateTimeConvertDateformatPattern;
+    }
+    
+    @Value("${spring.security.context.key}")
+    private String springSecurityContextKey;
+    public String getSpringSecurityContextKey() {
+    	logger.log(Level.INFO, "Loading the springSecurityContextKey: " +  springSecurityContextKey);
+    	return springSecurityContextKey;
+    }
+    
+    @Value("${spring.security.jwt.enable}")
+    private boolean springSecurityJwtEnable;
+    public boolean getSpringSecurityJwtEnable() {
+    	logger.log(Level.INFO, "Loading the springSecurityJwtEnable: " +  (springSecurityJwtEnable ? "true" : "false"));
+    	return springSecurityJwtEnable;
     }
 }

@@ -16,9 +16,9 @@ public interface TablesController {
 	
 	public ResponseEntity<String> create(MultipartHttpServletRequest request);
 	public ResponseEntity<String> get(MultipartHttpServletRequest request);
-	public ResponseEntity<String> retrieve();
+	public ResponseEntity<String> retrieve(MultipartHttpServletRequest request);
 	public ResponseEntity<String> update(MultipartHttpServletRequest request);
 	public ResponseEntity<String> delete(MultipartHttpServletRequest request);
-	public ResponseEntity<String> filter(@RequestBody WebRequestUtil.FilterRequestData requestData);
-	public ResponseEntity<String> getByTablesRestaurantIdAccountId(@RequestParam("restaurant_id_01") String restaurant_id_01,@RequestParam("account_id_02") String account_id_02);
+	public ResponseEntity<String> filter(MultipartHttpServletRequest request,@RequestBody WebRequestUtil.FilterRequestData requestData);
+	public ResponseEntity<String> getByTablesRestaurantIdAccountId(MultipartHttpServletRequest request,@RequestParam("restaurant_id_01") String restaurant_id_01,@RequestParam("account_id_02") String account_id_02);
 }

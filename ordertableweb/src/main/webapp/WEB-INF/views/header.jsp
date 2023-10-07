@@ -29,7 +29,9 @@
 						<li id="login_li" ><a href="${pageContext.request.contextPath}/login">Login</a></li>
 						<li id="logout_li" style="display:none" ><a href="#">Logout</a></li>
 						<li id="sign_up_li" ><a href="${pageContext.request.contextPath}/signup">Sign Up</a></li>
+						<security:authorize access="hasAuthority('USER') or hasAuthority('MANAGER') or hasAuthority('ADMIN')">
 						<li id="account_info_li" ><a href="${pageContext.request.contextPath}/accountinfo">Account Info</a></li>
+						</security:authorize>
 						<security:authorize access="hasAuthority('USER')">  
 						<li id="manage_rating_li" ><a href="${pageContext.request.contextPath}/managerating">Manage Ratings</a></li>
 						</security:authorize>

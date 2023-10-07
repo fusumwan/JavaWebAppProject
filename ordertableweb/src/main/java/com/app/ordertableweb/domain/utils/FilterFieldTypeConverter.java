@@ -1,3 +1,4 @@
+
 package com.app.ordertableweb.domain.utils;
 
 import java.io.IOException;
@@ -80,7 +81,5 @@ public class FilterFieldTypeConverter {
 			}
 		}
 		return requestData;
-	}
-	
-	
+	}	
 }

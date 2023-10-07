@@ -47,15 +47,23 @@ import org.springframework.http.HttpHeaders;
 
 import com.app.ordertableweb.domain.models.*;
 import com.app.ordertableweb.domain.models.data.ImageObject;
+import com.app.ordertableweb.domain.models.data.PageSession;
+import com.app.ordertableweb.domain.models.data.Session;
 import com.app.ordertableweb.domain.models.data.TableFieldCollection;
 import com.app.ordertableweb.domain.services.*;
+import com.app.ordertableweb.domain.services.session.SessionManager;
 import com.app.ordertableweb.domain.utils.*;
 import com.app.ordertableweb.domain.utils.web.WebRequestUtil;
+import com.app.ordertableweb.domain.utils.web.WebResponseUtil;
 import com.app.ordertableweb.config.ApplicationProperties;
+import com.app.ordertableweb.config.JwtUtil;
+import org.json.JSONObject;
 
 @Controller
 @RequestMapping("/rating")
 public class RatingControllerImpl implements RatingController{
+	@Autowired
+	private JwtUtil jwtUtil;
 	// need to inject our DatabaseTableService
 	@Autowired
 	private DatabaseTableService databaseTableService;
@@ -83,11 +91,9 @@ public class RatingControllerImpl implements RatingController{
 		rating.setRestaurant(restaurantService.getRestaurant(WebRequestUtil.Request(request).setRequestParameter("restaurant_id").toStr()));
 		// Perform the rating update logic here
 		rating=ratingService.saveRating(rating);
-		String Json=JsonUtil.ToJson(rating);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(rating);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -95,22 +101,18 @@ public class RatingControllerImpl implements RatingController{
 	public ResponseEntity<String> get(MultipartHttpServletRequest request){
 		
 		Rating rating = ratingService.getRating(WebRequestUtil.Request(request).setRequestParameter("rating_id").toStr());
-		String Json =JsonUtil.ToJson(rating);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(rating);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
-	@GetMapping(value = "/retrieve", produces = "application/json")
-	public ResponseEntity<String> retrieve() {
+	@GetMapping(value = "/retrieve", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
+	public ResponseEntity<String> retrieve(MultipartHttpServletRequest request) {
 		List<Rating> ratings = ratingService.getRatings();
-		String Json =JsonUtil.ToJson(ratings);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(ratings);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -129,11 +131,9 @@ public class RatingControllerImpl implements RatingController{
 			ratingService.saveRating(rating);
 			
 		}
-		String Json=JsonUtil.ToJson(rating);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(rating);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -144,88 +144,24 @@ public class RatingControllerImpl implements RatingController{
 		if (rating != null) {
 			ratingService.deleteRating(rating.getRatingId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		String json="";
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
 	@PostMapping(value = "/filter",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> filter(@RequestBody WebRequestUtil.FilterRequestData requestData) {
+	public ResponseEntity<String> filter(HttpServletRequest request,@RequestBody WebRequestUtil.FilterRequestData requestData) {
 		List<Rating> ratings =null;
 		// Set the appropriate headers and return the response
 		if(requestData!=null && applicationProperties.getFilterSqlEnable()) {
 			TableFieldCollection tableFieldCollection=databaseTableService.getTableFieldType("MYSQL","rating");
-			Map<String, List<Object>> dataValues = requestData.getDataValues();
-			for (Map.Entry<String, List<Object>> entry : dataValues.entrySet()) {
-				String paramName = entry.getKey();
-				if(paramName.indexOf("_")>0) {
-					String columnName=  paramName.substring(0, paramName.lastIndexOf("_"));
-					String dataType=tableFieldCollection.findDataType(columnName);
-					List<Object> paramValue = entry.getValue();
-					if(paramValue.size()>1) {
-						for (int i=0;i<paramValue.size();i++) {
-							Object objValue=paramValue.get(i);
-							String value=String.valueOf(objValue);
-							if (!value.strip().equals("")) {
-								if(dataType.equals("date")){
-									Date valueLocalDate=DateTimeUtil.stringToDate(value, applicationProperties.getDateConvertDateformatPattern());
-									paramValue.set(i, valueLocalDate);
-								}
-								else if(dataType.equals("datetime")){
-									LocalDateTime valueLocalDateTime=DateTimeUtil.stringToLocalDateTime(value, applicationProperties.getLocalDateTimeConvertDateformatPattern());
-									paramValue.set(i, valueLocalDateTime);
-								}
-								else if(dataType.equals("int") ||
-								dataType.equals("bigint") ||
-								dataType.equals("decimal")) {
-									paramValue.set(i, Integer.valueOf(value));
-								}
-								else if(dataType.equals("double") ||
-								dataType.equals("float")) {
-									paramValue.set(0, Double.valueOf(value));
-								}
-								else if(dataType.equals("boolean")) {
-									paramValue.set(0, Boolean.valueOf(value));
-								}
-							}
-						}
-					}else if(paramValue.size()==1) {
-						Object objValue=paramValue.get(0);
-						String value=String.valueOf(objValue);
-						if (!value.strip().equals("")) {
-							if(dataType.equals("date")){
-								Date valueLocalDate=DateTimeUtil.stringToDate(value, applicationProperties.getDateConvertDateformatPattern());
-								paramValue.set(0, valueLocalDate);
-							}
-							else if(dataType.equals("datetime")){
-								LocalDateTime valueLocalDateTime=DateTimeUtil.stringToLocalDateTime(value, applicationProperties.getLocalDateTimeConvertDateformatPattern());
-								paramValue.set(0, valueLocalDateTime);
-							}
-							else if(dataType.equals("int") ||
-							dataType.equals("bigint") ||
-							dataType.equals("decimal")) {
-								paramValue.set(0, Integer.valueOf(value));
-							}
-							else if(dataType.equals("double") ||
-							dataType.equals("float")) {
-								paramValue.set(0, Double.valueOf(value));
-							}
-							else if(dataType.equals("boolean")) {
-								paramValue.set(0, Boolean.valueOf(value));
-							}
-						}
-					}
-					dataValues.put(paramName, paramValue);
-				}
-			}
-			requestData.setDataValues(dataValues);
+			requestData=FilterFieldTypeConverter.FilterFieldToParamValue(requestData, tableFieldCollection,applicationProperties);
 			ratings=ratingService.filterRating(requestData);
 		}
-		String Json = JsonUtil.ToJson(ratings);
-		System.out.println(Json);
+		String json = JsonUtil.ToJson(ratings);
+		System.out.println(json);
 		// Set the appropriate headers and return the response
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/create-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -238,21 +174,17 @@ public class RatingControllerImpl implements RatingController{
 		
 		// Perform the rating update logic here
 		rating=ratingService.saveRating(rating);
-		String Json=JsonUtil.ToJson(rating);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(rating);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@GetMapping(value = "/retrieve-json")
-	public ResponseEntity<String> retrieveRatings() {
+	public ResponseEntity<String> retrieveRatings(MultipartHttpServletRequest request) {
 		List<Rating> ratings = ratingService.getRatings();
-		String Json =JsonUtil.ToJson(ratings);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(ratings);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/update-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -267,11 +199,9 @@ public class RatingControllerImpl implements RatingController{
 			rating=ratingService.saveRating(rating);
 			
 		}
-		String Json=JsonUtil.ToJson(rating);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(rating);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/delete-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -344,25 +274,22 @@ public class RatingControllerImpl implements RatingController{
 	@Override
 	@PostMapping(value = "/getByRating", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByRating(
-	
+			MultipartHttpServletRequest request
 	){
 		List<Rating> ratings=ratingService.getByRating();
-		String Json =JsonUtil.ToJson(ratings);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(ratings);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	@Override
 	@PostMapping(value = "/getByRatingAccountId", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByRatingAccountId(
+			MultipartHttpServletRequest request,
 	        @RequestParam("account_id_01") String account_id_01
 	){
 		List<Rating> ratings=ratingService.getByRatingAccountId(account_id_01);
-		String Json =JsonUtil.ToJson(ratings);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(ratings);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 }

@@ -12,7 +12,7 @@ public class WebAppAspect {
         // Write here the logic to be executed before the target method is executed
         System.out.println("Before executing controller methods...");
     }
-    
+    /*
     @Before("execution(public void com.app.ordertableweb.domain.models.repositories.AccountDao.get(..))")
     public void beforeAddAccountAdvice() {
         System.out.println("=======>>> Executing @Before advice on public void com.app.ordertableweb.domain.models.sessions.repositories.AccountDao.get(..)");
@@ -43,6 +43,6 @@ public class WebAppAspect {
     public void afterDeleteAdvice() {
         System.out.println("=======>>> Executing @After advice on public * com.app.ordertableweb.domain.*.*.delete*(..)");
     }
-    
+    */
 }
 

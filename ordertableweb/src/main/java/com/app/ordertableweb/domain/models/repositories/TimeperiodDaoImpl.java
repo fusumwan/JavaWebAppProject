@@ -189,7 +189,7 @@ public class TimeperiodDaoImpl implements TimeperiodDao {
 	Date start_period_01,
 	Date end_period_02
 	){
-		String hql="FROM Timeperiod WHERE timeperiod_id IS NOT NULL AND start_period>=:start_period_01 AND end_period>=:end_period_02 AND account_id=:account_id_03";
+		String hql="FROM Timeperiod WHERE timeperiod_id IS NOT NULL AND start_period<=:start_period_01 AND end_period>=:end_period_02 AND account_id=:account_id_03";
 		List<Timeperiod> timeperiods = null;
 		if(!hql.isEmpty()) {
 			Session currentSession = sessionFactory.getCurrentSession();

@@ -1,5 +1,4 @@
 package com.app.ordertableweb.domain.aggregates;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;

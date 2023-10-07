@@ -1,8 +1,9 @@
 /**************************************************
  // Author: Sum Wan,FU
  // Date: 7-5-2023
- // Description: app.domain.utils javascript
+ // Description: app.domain.utils
  **************************************************/
+
 window["app.domain.utils"] = {
     CalendarToDBDateFormat: function(value) {
         values = value.split('/');
@@ -36,9 +37,9 @@ window["app.domain.utils"] = {
         var _GMT = new Date();
         _GMT.setTime(_GMT.getTime() + (expiry_date * 24 * 60 * 60 * 1000));
         var _expires = "expires=" + _GMT.toGMTString();
-        if (window.contextPath != undefined) {
-            document.cookie = user_session_name + "=" + value + ";" + _expires + ";path=" + window.contextPath;
-        } else {
+        if (window.contextPath!=undefined){
+            document.cookie = user_session_name + "=" + value + ";" + _expires + ";path="+window.contextPath;
+        }else{
             document.cookie = user_session_name + "=" + value + ";" + _expires + ";";
         }
     },
@@ -61,7 +62,7 @@ window["app.domain.utils"] = {
         }
         return "";
     },
-    SessionToCookie: function(user_session_name, user_session) {
+    SessionToCookie: function(user_session_name,user_session) {
         if (user_session != undefined) {
             if (user_session.account_id != "" && user_session.account_id != undefined) {
                 var user = JSON.stringify(user_session);
@@ -72,21 +73,22 @@ window["app.domain.utils"] = {
             }
         }
     },
-    SetUserSession: function(usersession) {
+    SetUserSession:function(usersession){
+        var method="POST";
         var _result = null;
-        if (window.contextPath == undefined) {
-            return _result
-        }
+        if (window.contextPath==undefined){return _result}
         var url = window.contextPath + "/usersession/set_usersession";
         $.ajax({
+            type: method,
             url: url,
-            type: "POST",
             dataType: "json",
             data: JSON.stringify(usersession), // Convert user session object to string
             contentType: "application/json", // Set content type to JSON
+            headers: app.domain.utils.JWT.headers("JSON"),
             async: false,
             success: function(data) {
-                _result = JSON.parse(data);
+                data=app.domain.utils.JWT.json_process_jwt(data);
+                _result = data;
             },
             error: function(xhr, status, error) {
                 console.error("Status: ", status);
@@ -97,19 +99,21 @@ window["app.domain.utils"] = {
         return _result;
     },
     GetUserSession: function() {
+        var method="GET";
         var _result = null;
-        if (window.contextPath == undefined) {
-            return _result
-        }
+        if (window.contextPath==undefined){return _result}
         var url = window.contextPath + "/usersession/get_usersession";
         $.ajax({
-            type: "GET",
+            type: method,
             url: url,
+            dataType: "json",
+            headers: app.domain.utils.JWT.headers("JSON"),
             async: false, // Make the request synchronous
-            success: function(res) {
-                if (res != undefined && res != "") {
+            success: function(data) {
+                if (data != undefined && data != "") {
                     try {
-                        _result = JSON.parse(res);
+                        data=app.domain.utils.JWT.json_process_jwt(data);
+                        _result = data;
                     } catch (e) {
                         console.error("Failed to parse JSON response:", e);
                     }
@@ -127,12 +131,12 @@ window["app.domain.utils"] = {
             "index": {
                 "reserve_date": "",
                 "person": "",
-                "numbers": []
+                "numbers":[]
             },
             "login": "",
             "signup": "",
-            "restaurant_manage": {
-                "person": ""
+            "restaurant_manage":{
+                "person":""
             },
             "manage_booking": "",
             "confirm_booking": "",
@@ -145,26 +149,28 @@ window["app.domain.utils"] = {
                 "tables": "",
                 "reserve_date": ""
             },
-            "numbers": [],
-            "orders": []
-
+            "numbers":[],
+            "orders":[]
+            
         };
         return page_session;
     },
     GetPageSession: function() {
+        var method="GET";
         var _result = null;
-        if (window.contextPath == undefined) {
-            return _result
-        }
+        if (window.contextPath==undefined){return _result}
         var url = window.contextPath + "/usersession/get_pagesession";
         $.ajax({
-            type: "GET",
+            type: method,
             url: url,
+            dataType: "json",
+            headers: app.domain.utils.JWT.headers("JSON"),
             async: false, // Make the request synchronous
-            success: function(res) {
-                if (res != undefined && res != "") {
+            success: function(data) {
+                if (data != undefined && data != "") {
                     try {
-                        _result = JSON.parse(res);
+                        data=app.domain.utils.JWT.json_process_jwt(data);
+                        _result = data;
                     } catch (e) {
                         console.error("Failed to parse JSON response:", e);
                     }
@@ -180,20 +186,21 @@ window["app.domain.utils"] = {
         return _result;
     },
     SetPageSession: function(page_session) {
+        var method="POST";
         var _result = null;
-        if (window.contextPath == undefined) {
-            return _result
-        }
+        if (window.contextPath==undefined){return _result}
         var url = window.contextPath + "/usersession/set_pagesession";
         $.ajax({
             url: url,
-            type: "POST",
+            type: method,
             dataType: "json",
             data: JSON.stringify(page_session), // Convert user session object to string
             contentType: "application/json", // Set content type to JSON
+            headers: app.domain.utils.JWT.headers("JSON"),
             async: false,
             success: function(data) {
-                _result = JSON.parse(data);
+                data=app.domain.utils.JWT.json_process_jwt(data);
+                _result = data;
             },
             error: function(xhr, status, error) {
                 console.error("Status: ", status);
@@ -350,7 +357,32 @@ window["app.domain.utils"] = {
         return output;
     },
     SqlToHQLService: {
-        
+        parseValue: function(input) {
+            if (/^-?\d+$/.test(input)) {
+                return parseInt(input, 10);
+            } else {
+                return input.replace(/^'|'$/g, '');
+            }
+        },
+        extractBetweenConditions: function(sql) {
+            const betweenConditions = [];
+
+            return betweenConditions;
+        },
+        SqlBetweenKeyWordProcess: function(sql) {
+
+            return sql;
+        },
+        conditionprocess: function(condition) {
+            let result = {
+                ColumnName: "",
+                Operator: "",
+                Value: []
+            };
+
+            
+            return result;
+        },
         SqlToHQLJSON: function(sql) {
             
             return {
@@ -399,7 +431,7 @@ window["app.domain.utils"] = {
     },
     BCryptPasswordEncoder: {
         Encode: function(value) {
-            var bcrypt = dcodeIO.bcrypt;
+			var bcrypt = dcodeIO.bcrypt;
             // A loop that generates a salt and uses it 10 times
             const salt = bcrypt.genSaltSync(10);
             // Use salt to encrypt value
@@ -407,74 +439,129 @@ window["app.domain.utils"] = {
             return hashedValue;
         }
     },
-    Date: {
-        formatConvert: function(date, inputPattern, outputPattern) {
-            const dateParts = date.split(/[-T:/. ]/); // Adjusted the regex to include 'T' and ':'
-            let day, month, year, hour = 0,
-                minute = 0,
-                second = 0;
-            inputPattern.split(/[-T:/. ]/).forEach((pattern, index) => { // Adjusted the regex to include 'T' and ':'
-                switch (pattern) {
-                    case "dd":
-                        day = parseInt(dateParts[index], 10);
-                        break;
-                    case "MM":
-                        month = parseInt(dateParts[index], 10);
-                        break;
-                    case "yyyy":
-                        year = parseInt(dateParts[index], 10);
-                        break;
-                    case "HH":
-                        hour = parseInt(dateParts[index], 10);
-                        break;
-                    case "mm":
-                        minute = parseInt(dateParts[index], 10);
-                        break;
-                    case "ss":
-                        second = parseInt(dateParts[index], 10);
-                        break;
+    Date:{
+		formatConvert:function(date, inputPattern, outputPattern) {
+		    const dateParts = date.split(/[-T:/. ]/);  // Adjusted the regex to include 'T' and ':'
+		    let day, month, year, hour = 0, minute = 0, second = 0;
+		    inputPattern.split(/[-T:/. ]/).forEach((pattern, index) => {  // Adjusted the regex to include 'T' and ':'
+		        switch (pattern) {
+		            case "dd":
+		                day = parseInt(dateParts[index], 10);
+		                break;
+		            case "MM":
+		                month = parseInt(dateParts[index], 10);
+		                break;
+		            case "yyyy":
+		                year = parseInt(dateParts[index], 10);
+		                break;
+		            case "HH":
+		                hour = parseInt(dateParts[index], 10);
+		                break;
+		            case "mm":
+		                minute = parseInt(dateParts[index], 10);
+		                break;
+		            case "ss":
+		                second = parseInt(dateParts[index], 10);
+		                break;
+		        }
+		    });
+		
+		    const dateObj = new Date(year, month - 1, day, hour, minute, second);
+		
+		    // Format date based on output mode
+		    return outputPattern.replace(/dd|MM|yyyy|HH|mm|ss/g, match => {
+		        switch (match) {
+		            case "dd":
+		                return String(dateObj.getDate()).padStart(2, '0');
+		            case "MM":
+		                return String(dateObj.getMonth() + 1).padStart(2, '0');
+		            case "yyyy":
+		                return dateObj.getFullYear();
+		            case "HH":
+		                return String(dateObj.getHours()).padStart(2, '0');
+		            case "mm":
+		                return String(dateObj.getMinutes()).padStart(2, '0');
+		            case "ss":
+		                return String(dateObj.getSeconds()).padStart(2, '0');
+		        }
+		    });
+		},
+        now(){
+		    const now = new Date();
+		
+		    const yyyy = now.getFullYear();
+		    const MM = String(now.getMonth() + 1).padStart(2, '0'); // January is 0!
+		    const dd = String(now.getDate()).padStart(2, '0');
+		    const HH = String(now.getHours()).padStart(2, '0');
+		    const mm = String(now.getMinutes()).padStart(2, '0');
+		    const ss = String(now.getSeconds()).padStart(2, '0');
+		
+		    return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
+		},
+		moment(){
+			return moment().format('YYYY-MM-DD HH:mm:ss');
+		}
+	},
+    Value:{
+		isNumeric:function(str) {
+		  if (typeof str != "string") return false // we only process strings!  
+		  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+		         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+		}
+	},
+    JWT:{
+		headers:function(content_type){
+			var h={};
+			if (window.app.jwt.enable==true){
+				if(content_type=="JSON"){
+					// If content_type is JSON that mean your data is JSON need to data: JSON.stringify(data)
+					h={
+						"Content-Type": "application/json",
+					    "Authorization": localStorage.getItem('jwtToken')
+					}
+				}else{
+					// If content_type is formData that mean your data is var formData = new FormData() no need to set Content-Type
+					h={
+					    "Authorization": localStorage.getItem('jwtToken')
+					}
+				}
+			}
+			return h;
+		},
+		json_process_jwt:function(jsonData){
+            var data="";
+            if(jsonData!="" && jsonData!=null && jsonData!=undefined){
+                console.log(jsonData);
+                if (window.app.jwt.enable==true){
+                    jsonData=JSON.parse(jsonData);
+                    // Store the token
+                    localStorage.setItem('jwtToken', jsonData.token);
+                    if(jsonData.data!="" && jsonData.data!=null && jsonData.data!=undefined){
+                        data=JSON.parse(jsonData.data);
+                    }
+                    return data;
+                }else{
+                    data=JSON.parse(jsonData);
+                    return data;
                 }
-            });
-
-            const dateObj = new Date(year, month - 1, day, hour, minute, second);
-
-            // Format date based on output mode
-            return outputPattern.replace(/dd|MM|yyyy|HH|mm|ss/g, match => {
-                switch (match) {
-                    case "dd":
-                        return String(dateObj.getDate()).padStart(2, '0');
-                    case "MM":
-                        return String(dateObj.getMonth() + 1).padStart(2, '0');
-                    case "yyyy":
-                        return dateObj.getFullYear();
-                    case "HH":
-                        return String(dateObj.getHours()).padStart(2, '0');
-                    case "mm":
-                        return String(dateObj.getMinutes()).padStart(2, '0');
-                    case "ss":
-                        return String(dateObj.getSeconds()).padStart(2, '0');
+            }
+            return data;
+        },
+        json_callback_process_jwt:function(jsonData){
+            var data="";
+            if(jsonData!="" && jsonData!=null && jsonData!=undefined){
+                console.log(jsonData);
+                if (window.app.jwt.enable==true){
+                    jsonData=JSON.parse(jsonData);
+                    // Store the token
+                    localStorage.setItem('jwtToken', jsonData.token);
+                    return jsonData;
+                }else{
+                    data=JSON.parse(jsonData);
+                    return data;
                 }
-            });
-        },
-        now() {
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const MM = String(now.getMonth() + 1).padStart(2, '0'); // January is 0!
-            const dd = String(now.getDate()).padStart(2, '0');
-            const HH = String(now.getHours()).padStart(2, '0');
-            const mm = String(now.getMinutes()).padStart(2, '0');
-            const ss = String(now.getSeconds()).padStart(2, '0');
-            return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
-        },
-        moment() {
-            return moment().format('YYYY-MM-DD HH:mm:ss');
-        }
-    },
-    Value: {
-        isNumeric: function(str) {
-            if (typeof str != "string") return false // we only process strings!  
-            return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-                !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+            }
+            return data;
         }
     }
 }

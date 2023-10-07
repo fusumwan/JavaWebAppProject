@@ -148,6 +148,18 @@
 	        <artifactId>commons-io</artifactId>
 	        <version>2.11.0</version>
 	    </dependency>
+	    <!-- JWT library for creating JWT tokens -->
+		<dependency>
+		    <groupId>io.jsonwebtoken</groupId>
+		    <artifactId>jjwt</artifactId>
+		    <version>0.9.1</version>
+		</dependency>
+		<!-- To create a JSONObject and populate it with your JWT token, you can use the org.json library. -->
+		<dependency>
+		    <groupId>org.json</groupId>
+		    <artifactId>json</artifactId>
+		    <version>20210307</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>ordertableweb</finalName>

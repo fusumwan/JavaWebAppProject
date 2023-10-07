@@ -2,7 +2,7 @@ package com.app.ordertableweb.domain.services;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Date;
+import java.sql.Date;
 
 import com.app.ordertableweb.domain.models.*;
 import com.app.ordertableweb.domain.utils.web.WebRequestUtil;

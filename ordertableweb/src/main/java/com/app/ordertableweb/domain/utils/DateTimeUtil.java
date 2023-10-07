@@ -41,16 +41,16 @@ public class DateTimeUtil {
 	@SuppressWarnings("finally")
 	public static LocalDateTime objectToLocalDateTime(Object value,String pattern) throws IOException {
 		
-		if(!value.equals("") && !value.equals(null)) {
-			String valueStr=adjustLocalDateStr(String.valueOf(value),pattern);
-			if(!valueStr.equals("")) {
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-				LocalDateTime localDate = LocalDateTime.parse(valueStr, formatter);
-				
-				return localDate;
-			}
-		}
-		return null;
+		if (value == null || "".equals(value.toString().trim())) {
+	        return null;
+	    }
+
+	    String valueStr = adjustLocalDateStr(value.toString(), pattern);
+	    if (valueStr != null && !valueStr.isEmpty()) {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+	        return LocalDateTime.parse(valueStr, formatter);
+	    }
+	    return null;
 	}
 	
 	@SuppressWarnings("finally")

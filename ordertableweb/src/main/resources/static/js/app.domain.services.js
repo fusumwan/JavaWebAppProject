@@ -1,116 +1,149 @@
 /**************************************************
  // Author: Sum Wan,FU
  // Date: 7-5-2023
- // Description: app.domain.services javascript
+ // Description: app.domain.services
  **************************************************/
-window["app.domain.services"] = {
-    BusinessIntelligence: {
-        UpdateAccount: function(account) {
+
+window["app.domain.services"]={
+	BusinessIntelligence:{
+        UpdateAccount:function(account){
             var result = null;
-            result = app.domain.models.account.update(account);
+            result=app.domain.models.account.update(account);
             return result;
         },
-        SignIn: function(account) {
-            account = app.domain.models.account.create(account);
-            if (account != null) {
+        SignIn:function(account){
+            account=app.domain.models.account.create(account);
+            if (account!=null){
                 return true;
             }
             return false;
         },
-        Login: function(username, password, callback) {
-            var _valid = true;
-
-            // 如果驗證未通過，可在此處添加代碼返回或顯示錯誤消息
-            if (!_valid) return;
-
-            // 使用Fetch API發送POST請求，並使用contextPath變量
-            fetch(contextPath + "/authenticateTheUser", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: `username=${username}&password=${password}`
-                })
-                .then(response => {
-                    callback(response)
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+        Login:function(username,password, callback){
+            var method = "POST";
+            var data = {
+                username: username,
+                password: password
+            };
+            var url = window.contextPath + "/authenticateTheUser";
+            $.ajax({
+                url: url,
+                type: method,
+                dataType: "json",
+                data: JSON.stringify(data), // Convert the JavaScript object into a JSON string
+                headers: app.domain.utils.JWT.headers("JSON"),
+                async: false,
+                success: function(response) {
+                    response=app.domain.utils.JWT.json_callback_process_jwt(response);
+                    callback(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Status: ", status);
+                    console.error("Error: ", error);
+                    console.error("Response: ", xhr.responseText);
+                }
+            });
         },
-        Logout: function(callback) {
-            // 使用Fetch API發送POST請求，並使用contextPath變量
+        LoginWithOutJWT:function(username,password, callback){
+            var method = "POST";
+            var data = {
+                username: username,
+                password: password
+            };
+            var url = window.contextPath + "/authenticateTheUser";
+            $.ajax({
+                url: url,
+                type: method,
+                dataType: "json",
+                contentType: "application/json", // Specify the data type being sent
+                data: JSON.stringify(data), // Convert the JavaScript object into a JSON string
+                async: false,
+                success: function(response) {
+                    callback(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Status: ", status);
+                    console.error("Error: ", error);
+                    console.error("Response: ", xhr.responseText);
+                }
+            });
+        },
+        Logout:function(callback){
+            // Send POST request using Fetch API and use contextPath variable
             fetch(contextPath + "/logout", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: null
-                })
-                .then(response => {
-                    callback(response)
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: null
+            })
+            .then(response => {
+                callback(response)
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
     },
-    accountservice: {
-        getByAccountUsernamePassword: function(username_00, password_01, Limit) {
+	accountservice:{
+        getByAccountUsernamePassword:function(username_00,password_01,Limit){
             var result = null;
-            result = app.domain.models.repositories.accountdao.getByAccountUsernamePassword(username_00, password_01, Limit);
-            return result;
-        },
-        getByAccountUsername: function(username_01, Limit) {
-            var result = null;
-            result = app.domain.models.repositories.accountdao.getByAccountUsername(username_01, Limit);
-            return result;
-        },
-        getByAccount: function(Limit) {
-            var result = null;
-            result = app.domain.models.repositories.accountdao.getByAccount(Limit);
+            result=app.domain.models.repositories.accountdao.getByAccountUsernamePassword(username_00,password_01,Limit);
             return result;
         }
-    },
-    bookingservice: {},
-    ratingservice: {
-        getByRating: function(Limit) {
+		,
+        getByAccountUsername:function(username_01,Limit){
             var result = null;
-            result = app.domain.models.repositories.ratingdao.getByRating(Limit);
-            return result;
-        },
-        getByRatingAccountId: function(account_id_01, Limit) {
-            var result = null;
-            result = app.domain.models.repositories.ratingdao.getByRatingAccountId(account_id_01, Limit);
+            result=app.domain.models.repositories.accountdao.getByAccountUsername(username_01,Limit);
             return result;
         }
-    },
-    restaurant_timeperiod_accountservice: {
-        getByRestaurantTimeperiodAccount: function(Limit) {
+		,
+        getByAccount:function(Limit){
             var result = null;
-            result = app.domain.models.repositories.restaurant_timeperiod_accountdao.getByRestaurantTimeperiodAccount(Limit);
+            result=app.domain.models.repositories.accountdao.getByAccount(Limit);
             return result;
         }
-    },
-    restaurantservice: {
-        getByRestaurant: function(Limit) {
+	},
+	bookingservice:{
+	},
+	ratingservice:{
+        getByRating:function(Limit){
             var result = null;
-            result = app.domain.models.repositories.restaurantdao.getByRestaurant(Limit);
+            result=app.domain.models.repositories.ratingdao.getByRating(Limit);
             return result;
         }
-    },
-    tablesservice: {
-        getByTablesRestaurantIdAccountId: function(restaurant_id_01, account_id_02, Limit) {
+		,
+        getByRatingAccountId:function(account_id_01,Limit){
             var result = null;
-            result = app.domain.models.repositories.tablesdao.getByTablesRestaurantIdAccountId(restaurant_id_01, account_id_02, Limit);
+            result=app.domain.models.repositories.ratingdao.getByRatingAccountId(account_id_01,Limit);
             return result;
         }
-    },
-    timeperiodservice: {
-        getByTimeperiodAccountIdStartPeriodEndPeriod: function(start_period_01, end_period_02, account_id_03, Limit) {
+	},
+	restaurant_timeperiod_accountservice:{
+        getByRestaurantTimeperiodAccount:function(Limit){
             var result = null;
-            result = app.domain.models.repositories.timeperioddao.getByTimeperiodAccountIdStartPeriodEndPeriod(start_period_01, end_period_02, account_id_03, Limit);
+            result=app.domain.models.repositories.restaurant_timeperiod_accountdao.getByRestaurantTimeperiodAccount(Limit);
             return result;
         }
-    }
+	},
+	restaurantservice:{
+        getByRestaurant:function(Limit){
+            var result = null;
+            result=app.domain.models.repositories.restaurantdao.getByRestaurant(Limit);
+            return result;
+        }
+	},
+	tablesservice:{
+        getByTablesRestaurantIdAccountId:function(restaurant_id_01,account_id_02,Limit){
+            var result = null;
+            result=app.domain.models.repositories.tablesdao.getByTablesRestaurantIdAccountId(restaurant_id_01,account_id_02,Limit);
+            return result;
+        }
+	},
+	timeperiodservice:{
+        getByTimeperiodAccountIdStartPeriodEndPeriod:function(start_period_01,end_period_02,account_id_03,Limit){
+            var result = null;
+            result=app.domain.models.repositories.timeperioddao.getByTimeperiodAccountIdStartPeriodEndPeriod(start_period_01,end_period_02,account_id_03,Limit);
+            return result;
+        }
+	}
 }

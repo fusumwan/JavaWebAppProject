@@ -51,13 +51,18 @@ import com.app.ordertableweb.domain.models.data.TableFieldCollection;
 import com.app.ordertableweb.domain.services.*;
 import com.app.ordertableweb.domain.utils.*;
 import com.app.ordertableweb.domain.utils.web.WebRequestUtil;
+import com.app.ordertableweb.domain.utils.web.WebResponseUtil;
 import com.app.ordertableweb.config.ApplicationProperties;
+import com.app.ordertableweb.config.JwtUtil;
 import com.app.ordertableweb.domain.aggregates.*;
 import com.app.ordertableweb.domain.services.aggregates.*;
 
 @Controller
 @RequestMapping("/restaurant_timeperiod_account")
 public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTimeperiodAccountController{
+	@Autowired
+	private JwtUtil jwtUtil;
+	
 	// need to inject our DatabaseTableService
 	@Autowired
 	private DatabaseTableService databaseTableService;
@@ -94,11 +99,9 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 		restaurant_timeperiod_account.setRestaurantTTTDescription(WebRequestUtil.Request(request).setRequestParameter("restaurant_TTT_description").toStr());
 		// Perform the restaurant_timeperiod_account update logic here
 		restaurant_timeperiod_account=restaurant_timeperiod_accountService.saveRestaurantTimeperiodAccount(restaurant_timeperiod_account);
-		String Json=JsonUtil.ToJson(restaurant_timeperiod_account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(restaurant_timeperiod_account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(), request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -106,22 +109,18 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 	public ResponseEntity<String> get(MultipartHttpServletRequest request){
 		
 		RestaurantTimeperiodAccount restaurant_timeperiod_account = restaurant_timeperiod_accountService.getRestaurantTimeperiodAccount(WebRequestUtil.Request(request).setRequestParameter("restaurant_timeperiod_account_id").toStr());
-		String Json =JsonUtil.ToJson(restaurant_timeperiod_account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurant_timeperiod_account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
 	@GetMapping(value = "/retrieve", produces = "application/json")
-	public ResponseEntity<String> retrieve() {
+	public ResponseEntity<String> retrieve(HttpServletRequest request) {
 		List<RestaurantTimeperiodAccount> restaurant_timeperiod_accounts = restaurant_timeperiod_accountService.getRestaurantTimeperiodAccounts();
-		String Json =JsonUtil.ToJson(restaurant_timeperiod_accounts);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurant_timeperiod_accounts);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -153,11 +152,9 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 			restaurant_timeperiod_accountService.saveRestaurantTimeperiodAccount(restaurant_timeperiod_account);
 			
 		}
-		String Json=JsonUtil.ToJson(restaurant_timeperiod_account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(restaurant_timeperiod_account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -173,7 +170,7 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 	
 	@Override
 	@PostMapping(value = "/filter",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> filter(@RequestBody WebRequestUtil.FilterRequestData requestData) {
+	public ResponseEntity<String> filter(HttpServletRequest request,@RequestBody WebRequestUtil.FilterRequestData requestData) {
 		List<RestaurantTimeperiodAccount> restaurant_timeperiod_accounts =null;
 		// Set the appropriate headers and return the response
 		if(requestData!=null && applicationProperties.getFilterSqlEnable()) {
@@ -244,12 +241,10 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 			requestData.setDataValues(dataValues);
 			restaurant_timeperiod_accounts=restaurant_timeperiod_accountService.filterRestaurantTimeperiodAccount(requestData);
 		}
-		String Json = JsonUtil.ToJson(restaurant_timeperiod_accounts);
-		System.out.println(Json);
+		String json = JsonUtil.ToJson(restaurant_timeperiod_accounts);
+		System.out.println(json);
 		// Set the appropriate headers and return the response
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/create-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -275,21 +270,17 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 		
 		// Perform the restaurant_timeperiod_account update logic here
 		restaurant_timeperiod_account=restaurant_timeperiod_accountService.saveRestaurantTimeperiodAccount(restaurant_timeperiod_account);
-		String Json=JsonUtil.ToJson(restaurant_timeperiod_account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(restaurant_timeperiod_account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@GetMapping(value = "/retrieve-json")
-	public ResponseEntity<String> retrieveRestaurantTimeperiodAccounts() {
+	public ResponseEntity<String> retrieveRestaurantTimeperiodAccounts(HttpServletRequest request) {
 		List<RestaurantTimeperiodAccount> restaurant_timeperiod_accounts = restaurant_timeperiod_accountService.getRestaurantTimeperiodAccounts();
-		String Json =JsonUtil.ToJson(restaurant_timeperiod_accounts);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurant_timeperiod_accounts);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/update-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -317,11 +308,11 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 			restaurant_timeperiod_account=restaurant_timeperiod_accountService.saveRestaurantTimeperiodAccount(restaurant_timeperiod_account);
 			
 		}
-		String Json=JsonUtil.ToJson(restaurant_timeperiod_account);
-		System.out.println(Json);
+		String json=JsonUtil.ToJson(restaurant_timeperiod_account);
+		System.out.println(json);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/delete-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -396,13 +387,11 @@ public class RestaurantTimeperiodAccountControllerImpl implements RestaurantTime
 	@Override
 	@PostMapping(value = "/getByRestaurantTimeperiodAccount", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByRestaurantTimeperiodAccount(
-	
+			HttpServletRequest request
 	){
 		List<RestaurantTimeperiodAccount> restaurant_timeperiod_accounts=restaurant_timeperiod_accountService.getByRestaurantTimeperiodAccount();
-		String Json =JsonUtil.ToJson(restaurant_timeperiod_accounts);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurant_timeperiod_accounts);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 }

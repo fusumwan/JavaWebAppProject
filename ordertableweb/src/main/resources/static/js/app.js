@@ -141,7 +141,7 @@ function appDomainUtils(){
 	}
 }
 
-function appControllersUI(){    
+function appControllersUI(){
     if(window.app!=undefined && window.app!=null){
 		if(!window.app.hasOwnProperty("controllers")){
 			if(window["app.controllers"]!=undefined){
@@ -158,7 +158,6 @@ function appControllersUI(){
 	}
 }
 
-
 function appControllers(){
 	if(window.app!=undefined && window.app!=null){
 		if(!window.app.hasOwnProperty("controllers")){
@@ -167,9 +166,13 @@ function appControllers(){
 	};
 }
 
-
 $( document ).ready(function() { 
-	if(!window.app.hasOwnProperty("runat")){
+	if(!window.app.hasOwnProperty("jwt")){
+		window.app["jwt"]={
+			enable:true
+		};
+	}
+    if(!window.app.hasOwnProperty("runat")){
 		window.app["runat"]="";
 	}
 	if (contextPath!=undefined){ 

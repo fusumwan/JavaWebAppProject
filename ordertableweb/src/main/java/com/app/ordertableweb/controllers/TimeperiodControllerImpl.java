@@ -51,11 +51,15 @@ import com.app.ordertableweb.domain.models.data.TableFieldCollection;
 import com.app.ordertableweb.domain.services.*;
 import com.app.ordertableweb.domain.utils.*;
 import com.app.ordertableweb.domain.utils.web.WebRequestUtil;
+import com.app.ordertableweb.domain.utils.web.WebResponseUtil;
 import com.app.ordertableweb.config.ApplicationProperties;
+import com.app.ordertableweb.config.JwtUtil;
 
 @Controller
 @RequestMapping("/timeperiod")
 public class TimeperiodControllerImpl implements TimeperiodController{
+	@Autowired
+	private JwtUtil jwtUtil;
 	// need to inject our DatabaseTableService
 	@Autowired
 	private DatabaseTableService databaseTableService;
@@ -81,11 +85,9 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 		timeperiod.setEndPeriod(WebRequestUtil.Request(request).setRequestParameter("end_period").setPattern(applicationProperties.getDateConvertDateformatPattern()).toDate());
 		// Perform the timeperiod update logic here
 		timeperiod=timeperiodService.saveTimeperiod(timeperiod);
-		String Json=JsonUtil.ToJson(timeperiod);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(timeperiod);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -93,22 +95,18 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 	public ResponseEntity<String> get(MultipartHttpServletRequest request){
 		
 		Timeperiod timeperiod = timeperiodService.getTimeperiod(WebRequestUtil.Request(request).setRequestParameter("timeperiod_id").toStr());
-		String Json =JsonUtil.ToJson(timeperiod);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(timeperiod);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
 	@GetMapping(value = "/retrieve", produces = "application/json")
-	public ResponseEntity<String> retrieve() {
+	public ResponseEntity<String> retrieve(HttpServletRequest request) {
 		List<Timeperiod> timeperiods = timeperiodService.getTimeperiods();
-		String Json =JsonUtil.ToJson(timeperiods);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(timeperiods);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -127,11 +125,8 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 			timeperiodService.saveTimeperiod(timeperiod);
 			
 		}
-		String Json=JsonUtil.ToJson(timeperiod);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(timeperiod);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -142,12 +137,12 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 		if (timeperiod != null) {
 			timeperiodService.deleteTimeperiod(timeperiod.getTimeperiodId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@Override
 	@PostMapping(value = "/filter",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> filter(@RequestBody WebRequestUtil.FilterRequestData requestData) {
+	public ResponseEntity<String> filter(HttpServletRequest request,@RequestBody WebRequestUtil.FilterRequestData requestData) {
 		List<Timeperiod> timeperiods =null;
 		// Set the appropriate headers and return the response
 		if(requestData!=null && applicationProperties.getFilterSqlEnable()) {
@@ -218,12 +213,9 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 			requestData.setDataValues(dataValues);
 			timeperiods=timeperiodService.filterTimeperiod(requestData);
 		}
-		String Json = JsonUtil.ToJson(timeperiods);
-		System.out.println(Json);
-		// Set the appropriate headers and return the response
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json = JsonUtil.ToJson(timeperiods);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/create-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -236,21 +228,16 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 		
 		// Perform the timeperiod update logic here
 		timeperiod=timeperiodService.saveTimeperiod(timeperiod);
-		String Json=JsonUtil.ToJson(timeperiod);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(timeperiod);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@GetMapping(value = "/retrieve-json")
-	public ResponseEntity<String> retrieveTimeperiods() {
+	public ResponseEntity<String> retrieveTimeperiods(HttpServletRequest request) {
 		List<Timeperiod> timeperiods = timeperiodService.getTimeperiods();
-		String Json =JsonUtil.ToJson(timeperiods);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(timeperiods);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/update-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -265,20 +252,18 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 			timeperiod=timeperiodService.saveTimeperiod(timeperiod);
 			
 		}
-		String Json=JsonUtil.ToJson(timeperiod);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(timeperiod);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/delete-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
-	public ResponseEntity<Void> deleteTimeperiod(MultipartHttpServletRequest request) {
+	public ResponseEntity<String> deleteTimeperiod(MultipartHttpServletRequest request) {
 		Timeperiod timeperiod = timeperiodService.getTimeperiod(WebRequestUtil.Request(request).setRequestParameter("timeperiod_id").toStr());
 		if (timeperiod != null) {
 			timeperiodService.deleteTimeperiod(timeperiod.getTimeperiodId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@GetMapping("/timeperiod-gridview-detail")
@@ -344,15 +329,14 @@ public class TimeperiodControllerImpl implements TimeperiodController{
 	@Override
 	@PostMapping(value = "/getByTimeperiodAccountIdStartPeriodEndPeriod", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByTimeperiodAccountIdStartPeriodEndPeriod(
+			HttpServletRequest request,
 	        @RequestParam("account_id_03") String account_id_03,
 	        @RequestParam("start_period_01") @DateTimeFormat(pattern = "yyyy-MM-dd" ) Date start_period_01,
 	        @RequestParam("end_period_02") @DateTimeFormat(pattern = "yyyy-MM-dd" ) Date end_period_02
 	){
 		List<Timeperiod> timeperiods=timeperiodService.getByTimeperiodAccountIdStartPeriodEndPeriod(account_id_03,start_period_01,end_period_02);
-		String Json =JsonUtil.ToJson(timeperiods);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(timeperiods);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 }

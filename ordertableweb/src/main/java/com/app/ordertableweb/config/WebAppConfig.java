@@ -1,13 +1,19 @@
 
 package com.app.ordertableweb.config;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+import java.beans.PropertyVetoException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.Properties;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +31,19 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
+import org.springframework.web.accept.ContentNegotiationManagerFactoryBean;
+
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.springframework.format.FormatterRegistry;
-
 
 @Configuration
 @EnableWebMvc
@@ -146,6 +161,4 @@ public class WebAppConfig  implements WebMvcConfigurer {
     /* End
      * Register our SqlDateConverter
      */
-    
 }
-

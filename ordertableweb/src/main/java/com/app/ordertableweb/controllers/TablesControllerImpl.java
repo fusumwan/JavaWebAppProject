@@ -51,11 +51,15 @@ import com.app.ordertableweb.domain.models.data.TableFieldCollection;
 import com.app.ordertableweb.domain.services.*;
 import com.app.ordertableweb.domain.utils.*;
 import com.app.ordertableweb.domain.utils.web.WebRequestUtil;
+import com.app.ordertableweb.domain.utils.web.WebResponseUtil;
 import com.app.ordertableweb.config.ApplicationProperties;
+import com.app.ordertableweb.config.JwtUtil;
 
 @Controller
 @RequestMapping("/tables")
 public class TablesControllerImpl implements TablesController{
+	@Autowired
+	private JwtUtil jwtUtil;
 	// need to inject our DatabaseTableService
 	@Autowired
 	private DatabaseTableService databaseTableService;
@@ -86,11 +90,9 @@ public class TablesControllerImpl implements TablesController{
 		tables.setTimeperiod(timeperiodService.getTimeperiod(WebRequestUtil.Request(request).setRequestParameter("timeperiod_id").toStr()));
 		// Perform the tables update logic here
 		tables=tablesService.saveTables(tables);
-		String Json=JsonUtil.ToJson(tables);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(tables);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -98,22 +100,18 @@ public class TablesControllerImpl implements TablesController{
 	public ResponseEntity<String> get(MultipartHttpServletRequest request){
 		
 		Tables tables = tablesService.getTables(WebRequestUtil.Request(request).setRequestParameter("tables_id").toStr());
-		String Json =JsonUtil.ToJson(tables);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(tables);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
 	@GetMapping(value = "/retrieve", produces = "application/json")
-	public ResponseEntity<String> retrieve() {
+	public ResponseEntity<String> retrieve(MultipartHttpServletRequest request) {
 		List<Tables> tabless = tablesService.getTabless();
-		String Json =JsonUtil.ToJson(tabless);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(tabless);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -133,11 +131,9 @@ public class TablesControllerImpl implements TablesController{
 			tablesService.saveTables(tables);
 			
 		}
-		String Json=JsonUtil.ToJson(tables);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(tables);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -148,12 +144,12 @@ public class TablesControllerImpl implements TablesController{
 		if (tables != null) {
 			tablesService.deleteTables(tables.getTablesId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@Override
 	@PostMapping(value = "/filter",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> filter(@RequestBody WebRequestUtil.FilterRequestData requestData) {
+	public ResponseEntity<String> filter(MultipartHttpServletRequest request,@RequestBody WebRequestUtil.FilterRequestData requestData) {
 		List<Tables> tabless =null;
 		// Set the appropriate headers and return the response
 		if(requestData!=null && applicationProperties.getFilterSqlEnable()) {
@@ -161,12 +157,10 @@ public class TablesControllerImpl implements TablesController{
 			requestData=FilterFieldTypeConverter.FilterFieldToParamValue(requestData, tableFieldCollection,applicationProperties);
 			tabless=tablesService.filterTables(requestData);
 		}
-		String Json = JsonUtil.ToJson(tabless);
-		System.out.println(Json);
+		String json = JsonUtil.ToJson(tabless);
+		System.out.println(json);
 		// Set the appropriate headers and return the response
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/create-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -180,21 +174,17 @@ public class TablesControllerImpl implements TablesController{
 		
 		// Perform the tables update logic here
 		tables=tablesService.saveTables(tables);
-		String Json=JsonUtil.ToJson(tables);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(tables);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@GetMapping(value = "/retrieve-json")
-	public ResponseEntity<String> retrieveTabless() {
+	public ResponseEntity<String> retrieveTabless(HttpServletRequest request) {
 		List<Tables> tabless = tablesService.getTabless();
-		String Json =JsonUtil.ToJson(tabless);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(tabless);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/update-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -210,20 +200,18 @@ public class TablesControllerImpl implements TablesController{
 			tables=tablesService.saveTables(tables);
 			
 		}
-		String Json=JsonUtil.ToJson(tables);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(tables);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/delete-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
-	public ResponseEntity<Void> deleteTables(MultipartHttpServletRequest request) {
+	public ResponseEntity<String> deleteTables(MultipartHttpServletRequest request) {
 		Tables tables = tablesService.getTables(WebRequestUtil.Request(request).setRequestParameter("tables_id").toStr());
 		if (tables != null) {
 			tablesService.deleteTables(tables.getTablesId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@GetMapping("/tables-gridview-detail")
@@ -283,14 +271,13 @@ public class TablesControllerImpl implements TablesController{
 	@Override
 	@PostMapping(value = "/getByTablesRestaurantIdAccountId", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByTablesRestaurantIdAccountId(
+			MultipartHttpServletRequest request,
 	        @RequestParam("restaurant_id_01") String restaurant_id_01,
 	        @RequestParam("account_id_02") String account_id_02
 	){
 		List<Tables> tabless=tablesService.getByTablesRestaurantIdAccountId(restaurant_id_01,account_id_02);
-		String Json =JsonUtil.ToJson(tabless);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(tabless);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 }

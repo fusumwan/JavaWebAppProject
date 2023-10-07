@@ -15,10 +15,13 @@ public class IndexController {
 	// set up a logger for diagnostics
 	private Logger logger = Logger.getLogger(getClass().getName());
 	
-	@GetMapping("/")
-	public String showIndex() {
-		return "index";
-	}
+    @GetMapping({"/", "/index"})
+    public String showIndex() {
+        // This is for logging purposes, just to show that the method is being invoked.
+        logger.info("Entering showIndex method in IndexController.");
+
+        return "index";
+    }
 	
 	@GetMapping("/index-content")
 	public String showIndexContent() {

@@ -51,11 +51,15 @@ import com.app.ordertableweb.domain.models.data.TableFieldCollection;
 import com.app.ordertableweb.domain.services.*;
 import com.app.ordertableweb.domain.utils.*;
 import com.app.ordertableweb.domain.utils.web.WebRequestUtil;
+import com.app.ordertableweb.domain.utils.web.WebResponseUtil;
 import com.app.ordertableweb.config.ApplicationProperties;
+import com.app.ordertableweb.config.JwtUtil;
 
 @Controller
 @RequestMapping("/restaurant")
 public class RestaurantControllerImpl implements RestaurantController{
+	@Autowired
+	private JwtUtil jwtUtil;
 	// need to inject our DatabaseTableService
 	@Autowired
 	private DatabaseTableService databaseTableService;
@@ -82,11 +86,9 @@ public class RestaurantControllerImpl implements RestaurantController{
 		restaurant.setDescription(WebRequestUtil.Request(request).setRequestParameter("description").toStr());
 		// Perform the restaurant update logic here
 		restaurant=restaurantService.saveRestaurant(restaurant);
-		String Json=JsonUtil.ToJson(restaurant);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(restaurant);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -94,22 +96,18 @@ public class RestaurantControllerImpl implements RestaurantController{
 	public ResponseEntity<String> get(MultipartHttpServletRequest request){
 		
 		Restaurant restaurant = restaurantService.getRestaurant(WebRequestUtil.Request(request).setRequestParameter("restaurant_id").toStr());
-		String Json =JsonUtil.ToJson(restaurant);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurant);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
 	@GetMapping(value = "/retrieve", produces = "application/json")
-	public ResponseEntity<String> retrieve() {
+	public ResponseEntity<String> retrieve(HttpServletRequest request) {
 		List<Restaurant> restaurants = restaurantService.getRestaurants();
-		String Json =JsonUtil.ToJson(restaurants);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurants);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -131,11 +129,9 @@ public class RestaurantControllerImpl implements RestaurantController{
 			restaurantService.saveRestaurant(restaurant);
 			
 		}
-		String Json=JsonUtil.ToJson(restaurant);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(restaurant);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -146,12 +142,12 @@ public class RestaurantControllerImpl implements RestaurantController{
 		if (restaurant != null) {
 			restaurantService.deleteRestaurant(restaurant.getRestaurantId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@Override
 	@PostMapping(value = "/filter",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> filter(@RequestBody WebRequestUtil.FilterRequestData requestData) {
+	public ResponseEntity<String> filter(HttpServletRequest request,@RequestBody WebRequestUtil.FilterRequestData requestData) {
 		List<Restaurant> restaurants =null;
 		// Set the appropriate headers and return the response
 		if(requestData!=null && applicationProperties.getFilterSqlEnable()) {
@@ -222,12 +218,10 @@ public class RestaurantControllerImpl implements RestaurantController{
 			requestData.setDataValues(dataValues);
 			restaurants=restaurantService.filterRestaurant(requestData);
 		}
-		String Json = JsonUtil.ToJson(restaurants);
-		System.out.println(Json);
+		String json = JsonUtil.ToJson(restaurants);
+		System.out.println(json);
 		// Set the appropriate headers and return the response
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/create-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -243,21 +237,17 @@ public class RestaurantControllerImpl implements RestaurantController{
 		
 		// Perform the restaurant update logic here
 		restaurant=restaurantService.saveRestaurant(restaurant);
-		String Json=JsonUtil.ToJson(restaurant);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(restaurant);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@GetMapping(value = "/retrieve-json")
-	public ResponseEntity<String> retrieveRestaurants() {
+	public ResponseEntity<String> retrieveRestaurants(HttpServletRequest request) {
 		List<Restaurant> restaurants = restaurantService.getRestaurants();
-		String Json =JsonUtil.ToJson(restaurants);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurants);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/update-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -275,20 +265,18 @@ public class RestaurantControllerImpl implements RestaurantController{
 			restaurant=restaurantService.saveRestaurant(restaurant);
 			
 		}
-		String Json=JsonUtil.ToJson(restaurant);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(restaurant);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/delete-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
-	public ResponseEntity<Void> deleteRestaurant(MultipartHttpServletRequest request) {
+	public ResponseEntity<String> deleteRestaurant(MultipartHttpServletRequest request) {
 		Restaurant restaurant = restaurantService.getRestaurant(WebRequestUtil.Request(request).setRequestParameter("restaurant_id").toStr());
 		if (restaurant != null) {
 			restaurantService.deleteRestaurant(restaurant.getRestaurantId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@GetMapping("/restaurant-gridview-detail")
@@ -348,13 +336,11 @@ public class RestaurantControllerImpl implements RestaurantController{
 	@Override
 	@PostMapping(value = "/getByRestaurant", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByRestaurant(
-	
+	HttpServletRequest request
 	){
 		List<Restaurant> restaurants=restaurantService.getByRestaurant();
-		String Json =JsonUtil.ToJson(restaurants);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(restaurants);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 }

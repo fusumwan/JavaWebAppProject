@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -37,7 +39,10 @@
 <script src="${pageContext.request.contextPath}/js/error.protection.js" language="javascript"></script>
 <link href="${pageContext.request.contextPath}/css/CalendarControl.css" rel="stylesheet" type="text/css">
 <script src="${pageContext.request.contextPath}/js/CalendarControl.js" language="javascript"></script>
-<script type="application/x-javascript">
+<script type="text/javascript">
 	//JavaScript cannot directly parse JSP expressions. Therefore, we need to pass the value of JSP to JavaScript.
-	var contextPath = "<%= request.getContextPath() %>";
+    var contextPath = "<%= request.getContextPath() %>";
+    var jwt_enable = <spring:eval expression="@applicationProperties.getSpringSecurityJwtEnable()" />;
 </script>
+
+

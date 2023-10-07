@@ -1,9 +1,10 @@
 /**************************************************
  // Author: Sum Wan,FU
  // Date: 7-5-2023
- // Description: app.domain.models.repositories javascript
+ // Description: app.domain.models.repositories
  **************************************************/
-window["app.domain.models.repositories"] = {
+
+window["app.domain.models.repositories"]={
     accountdao: {
         getByAccountUsernamePassword: function(username_00, password_01, Limit) {
             var formData = new FormData();
@@ -27,14 +28,15 @@ window["app.domain.models.repositories"] = {
             $.ajax({
                 url: url,
                 type: method,
-                dataType: "json",
+                dataType: "json", // dataType: "json" tells jQuery that you expect the response from the server to be in JSON format. When the server responds, jQuery will automatically try to parse the response JSON and pass it to the success function as a JavaScript object.
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -68,10 +70,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -104,10 +107,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -117,9 +121,10 @@ window["app.domain.models.repositories"] = {
             return result;
         }
     },
-    bookingdao: {},
-    ratingdao: {
-        getByRating: function(Limit) {
+	bookingdao:{
+	},
+	ratingdao:{
+        getByRating:function(Limit){
             var formData = new FormData();
             // add other form fields
             formData.append("_method", "PUT"); // Simulate a PUT request
@@ -128,13 +133,13 @@ window["app.domain.models.repositories"] = {
             var method = "POST";
             var tableName = "rating";
             var getMethod = "getByRating";
-            var result = null;
-            var url = "";
-            if (app.runat != "" && app.runat != undefined) {
-                url += app.runat;
+            var result=null;
+            var url="";
+            if(app.runat!="" && app.runat!=undefined){
+                url +=  app.runat;
             }
-            if (tableName != "" && tableName != undefined) {
-                url += "/" + tableName + "/" + getMethod;
+            if(tableName!="" && tableName!=undefined){
+                url += "/" + tableName+ "/" + getMethod;
             }
             $.ajax({
                 url: url,
@@ -143,10 +148,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -154,8 +160,9 @@ window["app.domain.models.repositories"] = {
                 }
             });
             return result;
-        },
-        getByRatingAccountId: function(account_id_01, Limit) {
+        }
+		,
+        getByRatingAccountId:function(account_id_01,Limit){
             var formData = new FormData();
             // add other form fields
             formData.append("_method", "PUT"); // Simulate a PUT request
@@ -165,13 +172,13 @@ window["app.domain.models.repositories"] = {
             var method = "POST";
             var tableName = "rating";
             var getMethod = "getByRatingAccountId";
-            var result = null;
-            var url = "";
-            if (app.runat != "" && app.runat != undefined) {
-                url += app.runat;
+            var result=null;
+            var url="";
+            if(app.runat!="" && app.runat!=undefined){
+                url +=  app.runat;
             }
-            if (tableName != "" && tableName != undefined) {
-                url += "/" + tableName + "/" + getMethod;
+            if(tableName!="" && tableName!=undefined){
+                url += "/" + tableName+ "/" + getMethod;
             }
             $.ajax({
                 url: url,
@@ -180,10 +187,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -192,9 +200,9 @@ window["app.domain.models.repositories"] = {
             });
             return result;
         }
-    },
-    restaurant_timeperiod_accountdao: {
-        getByRestaurantTimeperiodAccount: function(Limit) {
+	},
+	restaurant_timeperiod_accountdao:{
+        getByRestaurantTimeperiodAccount:function(Limit){
             var formData = new FormData();
             // add other form fields
             formData.append("_method", "PUT"); // Simulate a PUT request
@@ -203,13 +211,13 @@ window["app.domain.models.repositories"] = {
             var method = "POST";
             var tableName = "restaurant_timeperiod_account";
             var getMethod = "getByRestaurantTimeperiodAccount";
-            var result = null;
-            var url = "";
-            if (app.runat != "" && app.runat != undefined) {
-                url += app.runat;
+            var result=null;
+            var url="";
+            if(app.runat!="" && app.runat!=undefined){
+                url +=  app.runat;
             }
-            if (tableName != "" && tableName != undefined) {
-                url += "/" + tableName + "/" + getMethod;
+            if(tableName!="" && tableName!=undefined){
+                url += "/" + tableName+ "/" + getMethod;
             }
             $.ajax({
                 url: url,
@@ -218,10 +226,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -230,9 +239,9 @@ window["app.domain.models.repositories"] = {
             });
             return result;
         }
-    },
-    restaurantdao: {
-        getByRestaurant: function(Limit) {
+	},
+	restaurantdao:{
+        getByRestaurant:function(Limit){
             var formData = new FormData();
             // add other form fields
             formData.append("_method", "PUT"); // Simulate a PUT request
@@ -241,13 +250,13 @@ window["app.domain.models.repositories"] = {
             var method = "POST";
             var tableName = "restaurant";
             var getMethod = "getByRestaurant";
-            var result = null;
-            var url = "";
-            if (app.runat != "" && app.runat != undefined) {
-                url += app.runat;
+            var result=null;
+            var url="";
+            if(app.runat!="" && app.runat!=undefined){
+                url +=  app.runat;
             }
-            if (tableName != "" && tableName != undefined) {
-                url += "/" + tableName + "/" + getMethod;
+            if(tableName!="" && tableName!=undefined){
+                url += "/" + tableName+ "/" + getMethod;
             }
             $.ajax({
                 url: url,
@@ -256,10 +265,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -268,9 +278,9 @@ window["app.domain.models.repositories"] = {
             });
             return result;
         }
-    },
-    tablesdao: {
-        getByTablesRestaurantIdAccountId: function(restaurant_id_01, account_id_02, Limit) {
+	},
+	tablesdao:{
+        getByTablesRestaurantIdAccountId:function(restaurant_id_01,account_id_02,Limit){
             var formData = new FormData();
             // add other form fields
             formData.append("_method", "PUT"); // Simulate a PUT request
@@ -281,13 +291,13 @@ window["app.domain.models.repositories"] = {
             var method = "POST";
             var tableName = "tables";
             var getMethod = "getByTablesRestaurantIdAccountId";
-            var result = null;
-            var url = "";
-            if (app.runat != "" && app.runat != undefined) {
-                url += app.runat;
+            var result=null;
+            var url="";
+            if(app.runat!="" && app.runat!=undefined){
+                url +=  app.runat;
             }
-            if (tableName != "" && tableName != undefined) {
-                url += "/" + tableName + "/" + getMethod;
+            if(tableName!="" && tableName!=undefined){
+                url += "/" + tableName+ "/" + getMethod;
             }
             $.ajax({
                 url: url,
@@ -296,10 +306,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -308,8 +319,8 @@ window["app.domain.models.repositories"] = {
             });
             return result;
         }
-    },
-    timeperioddao: {
+	},
+	timeperioddao:{
         getByTimeperiodAccountIdStartPeriodEndPeriod: function(start_period_01, end_period_02, account_id_03, Limit) {
             var formData = new FormData();
             // add other form fields
@@ -337,10 +348,11 @@ window["app.domain.models.repositories"] = {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: app.domain.utils.JWT.headers("FORMDATA"),
                 async: false,
                 success: function(data) {
-                    console.log(data);
-                    result = JSON.parse(data);
+                    data=app.domain.utils.JWT.json_process_jwt(data);
+				    result=data;
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred while loading the ' + tableName);
@@ -349,5 +361,5 @@ window["app.domain.models.repositories"] = {
             });
             return result;
         }
-    }
+	}
 }

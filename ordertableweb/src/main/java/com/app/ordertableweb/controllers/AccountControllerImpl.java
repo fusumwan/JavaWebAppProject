@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.aspectj.util.FileUtil;
 import org.hibernate.Hibernate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -47,15 +48,26 @@ import org.springframework.http.HttpHeaders;
 
 import com.app.ordertableweb.domain.models.*;
 import com.app.ordertableweb.domain.models.data.ImageObject;
+import com.app.ordertableweb.domain.models.data.PageSession;
+import com.app.ordertableweb.domain.models.data.Session;
 import com.app.ordertableweb.domain.models.data.TableFieldCollection;
 import com.app.ordertableweb.domain.services.*;
+import com.app.ordertableweb.domain.services.session.SessionManager;
 import com.app.ordertableweb.domain.utils.*;
 import com.app.ordertableweb.domain.utils.web.WebRequestUtil;
+import com.app.ordertableweb.domain.utils.web.WebResponseUtil;
 import com.app.ordertableweb.config.ApplicationProperties;
+
+
+import com.app.ordertableweb.config.JwtUtil;
+import org.json.JSONObject;
 
 @Controller
 @RequestMapping("/account")
 public class AccountControllerImpl implements AccountController{
+	@Autowired
+	private JwtUtil jwtUtil;
+
 	// need to inject our DatabaseTableService
 	@Autowired
 	private DatabaseTableService databaseTableService;
@@ -82,11 +94,9 @@ public class AccountControllerImpl implements AccountController{
 		account.setUserType(WebRequestUtil.Request(request).setRequestParameter("user_type").toStr());
 		// Perform the account update logic here
 		account=accountService.saveAccount(account);
-		String Json=JsonUtil.ToJson(account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(account);
+		System.out.println(json);
+	    return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -94,22 +104,18 @@ public class AccountControllerImpl implements AccountController{
 	public ResponseEntity<String> get(MultipartHttpServletRequest request){
 		
 		Account account = accountService.getAccount(WebRequestUtil.Request(request).setRequestParameter("account_id").toStr());
-		String Json =JsonUtil.ToJson(account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
 	@GetMapping(value = "/retrieve", produces = "application/json")
-	public ResponseEntity<String> retrieve() {
+	public ResponseEntity<String> retrieve(MultipartHttpServletRequest request) {
 		List<Account> accounts = accountService.getAccounts();
-		String Json =JsonUtil.ToJson(accounts);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(accounts);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
@@ -131,27 +137,24 @@ public class AccountControllerImpl implements AccountController{
 			accountService.saveAccount(account);
 			
 		}
-		String Json=JsonUtil.ToJson(account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@Override
 	@RequestMapping(value = "/delete", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> delete(MultipartHttpServletRequest request){
-		
 		Account account = accountService.getAccount(WebRequestUtil.Request(request).setRequestParameter("account_id").toStr());
 		if (account != null) {
 			accountService.deleteAccount(account.getAccountId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@Override
 	@PostMapping(value = "/filter",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> filter(@RequestBody WebRequestUtil.FilterRequestData requestData) {
+	public ResponseEntity<String> filter(MultipartHttpServletRequest request,@RequestBody WebRequestUtil.FilterRequestData requestData) {
 		List<Account> accounts =null;
 		// Set the appropriate headers and return the response
 		if(requestData!=null && applicationProperties.getFilterSqlEnable()) {
@@ -175,12 +178,9 @@ public class AccountControllerImpl implements AccountController{
 			}
 			accounts=accountService.filterAccount(requestData);
 		}
-		String Json = JsonUtil.ToJson(accounts);
-		System.out.println(Json);
-		// Set the appropriate headers and return the response
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json = JsonUtil.ToJson(accounts);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@RequestMapping(value = "/create-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -196,21 +196,17 @@ public class AccountControllerImpl implements AccountController{
 		
 		// Perform the account update logic here
 		account=accountService.saveAccount(account);
-		String Json=JsonUtil.ToJson(account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@GetMapping(value = "/retrieve-json")
-	public ResponseEntity<String> retrieveAccounts() {
+	public ResponseEntity<String> retrieveAccounts(HttpServletRequest request) {
 		List<Account> accounts = accountService.getAccounts();
-		String Json =JsonUtil.ToJson(accounts);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json, headers, HttpStatus.OK);
+		String json =JsonUtil.ToJson(accounts);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/update-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -228,20 +224,18 @@ public class AccountControllerImpl implements AccountController{
 			account=accountService.saveAccount(account);
 			
 		}
-		String Json=JsonUtil.ToJson(account);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json=JsonUtil.ToJson(account);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	
 	@RequestMapping(value = "/delete-json", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
-	public ResponseEntity<Void> deleteAccount(MultipartHttpServletRequest request) {
+	public ResponseEntity<String> deleteAccount(MultipartHttpServletRequest request) {
 		Account account = accountService.getAccount(WebRequestUtil.Request(request).setRequestParameter("account_id").toStr());
 		if (account != null) {
 			accountService.deleteAccount(account.getAccountId());
 		}
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", "");
 	}
 	
 	@GetMapping("/account-gridview-detail")
@@ -299,6 +293,7 @@ public class AccountControllerImpl implements AccountController{
 		return "redirect:/account/account-retrieve-jstl";
 	}
 	
+	/*
 	@Override
 	@PostMapping(value = "/getByAccountUsernamePassword", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByAccountUsernamePassword(
@@ -322,29 +317,51 @@ public class AccountControllerImpl implements AccountController{
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
 	}
+	*/
+	
+	
+	@PostMapping(value = "/getByAccountUsernamePassword", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
+	public ResponseEntity<String> getByAccountUsernamePassword(
+			MultipartHttpServletRequest request,
+	        @RequestParam("username_00") String username_00,
+	        @RequestParam("password_01") String password_01
+	){
+	    Account account = null;
+	    List<Account> accounts = accountService.findByUsername(username_00);
+	    if (accounts != null) {
+	        for (int i = 0; i < accounts.size(); i++) {
+	            if (BcryptPasswordVerifier.authenticateUser(password_01, accounts.get(i).getPassword())) {
+	                account = accounts.get(i);
+	                break;
+	            }
+	        }
+	    }
+	    
+	    String json = JsonUtil.ToJson(account);
+	    System.out.println(json);
+	    SessionManager.getInstance().updateSession(request.getSession().getId(), account);
+	    return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
+	}
+
 	
 	@Override
 	@PostMapping(value = "/getByAccountUsername", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByAccountUsername(
+			MultipartHttpServletRequest request,
 	        @RequestParam("username_01") String username_01
 	){
 		List<Account> accounts=accountService.getByAccountUsername(username_01);
-		String Json =JsonUtil.ToJson(accounts);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(accounts);
+		System.out.println(json);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 	@Override
 	@PostMapping(value = "/getByAccount", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
 	public ResponseEntity<String> getByAccount(
-	
+			MultipartHttpServletRequest request
 	){
 		List<Account> accounts=accountService.getByAccount();
-		String Json =JsonUtil.ToJson(accounts);
-		System.out.println(Json);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(Json,headers,HttpStatus.OK);
+		String json =JsonUtil.ToJson(accounts);
+		return (new WebResponseUtil(jwtUtil,applicationProperties)).Response(request.getRequestURI(),request.getSession().getId(), "data", json);
 	}
 }
